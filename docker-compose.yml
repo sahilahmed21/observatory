@@ -1,0 +1,28 @@
+# Specifies the Docker Compose file format version. '3.8' is a good, modern choice.
+version: '3.8'
+
+# This is where we define all the services our application needs.
+services:
+  # Defines our PostgreSQL database service. We'll name it 'postgres'.
+  postgres:
+    image: postgres:15-alpine # Use the official PostgreSQL version 15 image. 'alpine' is a lightweight version.
+    container_name: observatory_postgres
+    environment:
+      POSTGRES_USER: admin       # Sets the database username.
+      POSTGRES_PASSWORD: password # Sets the database password. IMPORTANT: Only for local dev!
+      POSTGRES_DB: observatory   # Creates an initial database named 'observatory'.
+    ports:
+      - "5432:5432" # Maps port 5432 on your machine to port 5432 in the container.
+    volumes:
+      - db-data:/var/lib/postgresql/data # This creates a 'volume' to persist our database data even if the container stops.
+
+  # Defines our Redis service. We'll name it 'redis'.
+  redis:
+    image: redis:7-alpine # Use the official Redis version 7 image.
+    container_name: observatory_redis
+    ports:
+      - "6379:6379" # Maps port 6379 on your machine to port 6379 in the container.
+
+# This section defines the volumes used by our services.
+volumes:
+  db-data: # The named volume we referenced above for PostgreSQL.
