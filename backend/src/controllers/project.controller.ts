@@ -15,3 +15,12 @@ export const create = async (req: AuthRequest, res: Response) => {
         res.status(500).json({ message: 'Failed to create project', error: error.message });
     }
 }
+export const getAll = async (req: AuthRequest, res: Response) => {
+    try {
+        const userId = req.user!.userId; // Get the user ID from our auth middleware
+        const projects = await ProjectService.getProjectsByUserId(userId);
+        res.status(200).json(projects);
+    } catch (error: any) {
+        res.status(500).json({ message: 'Failed to fetch projects', error: error.message });
+    }
+};
