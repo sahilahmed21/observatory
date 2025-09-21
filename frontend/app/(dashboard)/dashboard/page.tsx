@@ -2,10 +2,11 @@
 
 import { useQuery } from '@tanstack/react-query';
 import api from '@/app/lib/api';
+import { CreateProjectDialog } from '@/components/dashboard/CreateProjectDialog';
 import withAuth from '@/components/auth/withAuth';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import Link from 'next/link';
 
-// Define the shape of our project data
 interface Project {
     id: string;
     name: string;
@@ -18,7 +19,6 @@ const DashboardPage = () => {
         return response.data;
     };
 
-    // Use TanStack Query to fetch, cache, and manage the state of our data
     const { data: projects, isLoading, isError } = useQuery({
         queryKey: ['projects'],
         queryFn: fetchProjects,
@@ -29,21 +29,26 @@ const DashboardPage = () => {
 
     return (
         <div className="p-8">
-            <h1 className="text-3xl font-bold mb-6">Your Projects</h1>
+            <div className="flex items-center justify-between mb-6">
+                <h1 className="text-3xl font-bold mb-6">Your Projects</h1>
+                <CreateProjectDialog />
+            </div>
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {projects && projects.length > 0 ? (
                     projects.map((project) => (
-                        <Card key={project.id}>
-                            <CardHeader>
-                                <CardTitle>{project.name}</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <p className="text-sm text-muted-foreground">API Key:</p>
-                                <code className="text-xs bg-muted p-1 rounded font-mono break-all">
-                                    {project.apiKeys[0]?.key}
-                                </code>
-                            </CardContent>
-                        </Card>
+                        <Link href={`/projects/${project.id}`} key={project.id}>
+                            <Card className="hover:border-primary transition-colors cursor-pointer">
+                                <CardHeader>
+                                    <CardTitle>{project.name}</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <p className="text-sm text-muted-foreground">API Key:</p>
+                                    <code className="text-xs bg-muted p-1 rounded font-mono break-all">
+                                        {project.apiKeys[0]?.key}
+                                    </code>
+                                </CardContent>
+                            </Card>
+                        </Link>
                     ))
                 ) : (
                     <p>You haven't created any projects yet.</p>

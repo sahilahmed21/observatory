@@ -8,5 +8,6 @@ const router = Router();
 // If the user isn't authenticated, the controller will never be reached.
 router.post('/', authMiddleware, ProjectController.create);
 router.get('/', authMiddleware, ProjectController.getAll);
+router.get('/:projectId/metrics', authMiddleware, ProjectController.getMetrics);
 
 export default router;

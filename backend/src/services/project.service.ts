@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { randomBytes } from 'crypto';
+import { subHours } from 'date-fns';
 
 const prisma = new PrismaClient();
 export const getProjectsByUserId = async (userId: string) => {
@@ -35,3 +36,11 @@ export const createProjectAndApiKey = async (projectName: string, userId: string
     });
     return newProject;
 }
+export const getProjectMetrics = async (projectId: string, timeframeHours: number) => {
+    const sinceDate = subHours(new Date(), timeframeHours);
+    const metrics = await prisma.metric.findMany({
+        where: { projectId: projectId, timestamp: { gte: sinceDate } },
+        orderBy: { timestamp: 'asc' },
+    });
+    return metrics;
+};

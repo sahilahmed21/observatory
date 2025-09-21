@@ -19,7 +19,7 @@ model User{
   password  String    
   createdAt DateTime @default(now())
   updatedAt DateTime  @updatedAt
-  project   Project[]
+  projects   Project[]
 }
 model Project {
   id        String   @id @default(cuid())
@@ -29,6 +29,9 @@ model Project {
   userId    String
   user      User     @relation(fields: [userId], references: [id])
   apiKeys   ApiKey[]
+  metrics   Metric[]
+  alertRules AlertRule[]
+
 }
 model ApiKey {
   id          String   @id @default(cuid())
@@ -36,4 +39,36 @@ model ApiKey {
   createdAt   DateTime @default(now())
   projectId   String
   project     Project  @relation(fields: [projectId], references: [id])
+}
+
+model Metric {
+  id           String   @id @default(cuid())
+  timestamp    DateTime @default(now())
+  endpoint     String
+  responseTime Int      // in milliseconds
+  statusCode   Int
+  projectId    String
+  project      Project  @relation(fields: [projectId], references: [id])
+}
+
+model AlertRule {
+  id             String    @id @default(cuid())
+  projectId      String
+  project        Project   @relation(fields: [projectId], references: [id])
+  name           String
+  metric         String // e.g., "latency" or "status_code"
+  threshold      Int      // e.g., 500 (for ms) or 500 (for status code)
+  operator       String   // e.g., ">" or "=="
+  endpointFilter String?  // Optional: e.g., "/api/users"
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  events         AlertEvent[]
+}
+
+model AlertEvent {
+  id        String    @id @default(cuid())
+  ruleId    String
+  rule      AlertRule @relation(fields: [ruleId], references: [id])
+  timestamp DateTime  @default(now())
+  details   Json      // Store details about the trigger
 }

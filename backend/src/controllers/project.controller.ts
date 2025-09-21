@@ -24,3 +24,14 @@ export const getAll = async (req: AuthRequest, res: Response) => {
         res.status(500).json({ message: 'Failed to fetch projects', error: error.message });
     }
 };
+
+export const getMetrics = async (req: AuthRequest, res: Response) => {
+    try {
+        const { projectId } = req.params;
+        const timeframe = parseInt(req.query.timeframe as string) || 24;
+        const metrics = await ProjectService.getProjectMetrics(projectId, timeframe);
+        res.status(200).json(metrics);
+    } catch (error: any) {
+        res.status(500).json({ message: 'Failed to fetch metrics', error: error.message });
+    }
+};
