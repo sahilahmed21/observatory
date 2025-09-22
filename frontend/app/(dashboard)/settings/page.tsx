@@ -1,35 +1,44 @@
-// app/(dashboard)/settings/page.tsx
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
 import api from '@/app/lib/api';
 import withAuth from '@/components/auth/withAuth';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { PlusCircle } from 'lucide-react';
+import { CreateAlertRuleDialog } from '@/components/dashboard/CreateAlertRuleDialog';
 
-// NOTE: For now, we are just displaying rules. The form to create them
-// would be in a separate Dialog component, similar to the Create Project feature.
+// 1. Define the shape of the Project and AlertRule data
+interface Project {
+    id: string;
+    name: string;
+}
+
+interface AlertRule {
+    id: string;
+    name: string;
+    metric: string;
+    operator: string;
+    threshold: number;
+    endpointFilter: string | null;
+}
 
 const AlertsPage = () => {
-    // A placeholder projectId - in a real app you'd get this from a context or URL
-    const projectId = "your-project-id-here";
+    // 2. Tell useQuery to expect an array of Project objects
+    const { data: projects } = useQuery<Project[]>({ queryKey: ['projects'] });
+    const projectId = projects?.[0]?.id;
 
-    const { data: rules, isLoading } = useQuery({
+    // 3. Tell useQuery to expect an array of AlertRule objects
+    const { data: rules, isLoading } = useQuery<AlertRule[]>({
         queryKey: ['alertRules', projectId],
         queryFn: () => api.get(`/projects/${projectId}/alerts`).then(res => res.data),
-        enabled: !!projectId
+        enabled: !!projectId,
     });
 
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <h1 className="text-3xl font-bold">Alert Rules</h1>
-                <Button>
-                    <PlusCircle className="mr-2 h-4 w-4" />
-                    New Alert Rule
-                </Button>
+                {projectId && <CreateAlertRuleDialog projectId={projectId} />}
             </div>
             <Card>
                 <CardHeader>
@@ -44,18 +53,17 @@ const AlertsPage = () => {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {isLoading ? (
+                            {isLoading && (
                                 <TableRow><TableCell colSpan={2}>Loading rules...</TableCell></TableRow>
-                            ) : (
-                                rules?.map((rule: any) => (
-                                    <TableRow key={rule.id}>
-                                        <TableCell>{rule.name}</TableCell>
-                                        <TableCell>
-                                            {`Alert when ${rule.metric} ${rule.operator} ${rule.threshold}`}
-                                        </TableCell>
-                                    </TableRow>
-                                ))
                             )}
+                            {rules?.map((rule) => (
+                                <TableRow key={rule.id}>
+                                    <TableCell>{rule.name}</TableCell>
+                                    <TableCell className="font-mono text-sm">
+                                        {`WHEN ${rule.metric} ${rule.operator} ${rule.threshold} ON ${rule.endpointFilter || '*'}`}
+                                    </TableCell>
+                                </TableRow>
+                            ))}
                         </TableBody>
                     </Table>
                 </CardContent>

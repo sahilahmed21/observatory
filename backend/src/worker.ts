@@ -27,7 +27,9 @@ const worker = new Worker('metrics-processing', async job => {
 
     for (const rule of alertRules) {
         let isBreached = false;
-        if (rule.metric === 'latency' && (!rule.endpointFilter || rule.endpointFilter === metric.endpoint)) {
+        const endpointMatches = !rule.endpointFilter || rule.endpointFilter === '*' || rule.endpointFilter === metric.endpoint;
+
+        if (rule.metric === 'latency' && endpointMatches) {
             if (rule.operator === '>' && metric.responseTime > rule.threshold) {
                 isBreached = true;
             }
