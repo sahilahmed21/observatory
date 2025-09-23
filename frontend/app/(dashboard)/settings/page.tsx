@@ -24,7 +24,7 @@ interface AlertRule {
 
 const AlertsPage = () => {
     // 2. Tell useQuery to expect an array of Project objects
-    const { data: projects } = useQuery<Project[]>({ queryKey: ['projects'] });
+    const { data: projects } = useQuery<Project[]>({ queryKey: ['projects'], queryFn: () => api.get('/projects').then(res => res.data) });
     const projectId = projects?.[0]?.id;
 
     // 3. Tell useQuery to expect an array of AlertRule objects

@@ -7,7 +7,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import api from '@/app/lib/api';
-
+import { toast } from "sonner"
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -30,6 +30,7 @@ export const CreateProjectDialog = () => {
     const createProjectMutation = useMutation({
         mutationFn: (projectName: string) => api.post('/projects', { name: projectName }),
         onSuccess: () => {
+            toast.success("Project created successfully!");
             queryClient.invalidateQueries({ queryKey: ['projects'] });
             setOpen(false); // Close the dialog
             form.reset(); // Reset the form

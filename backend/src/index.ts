@@ -6,7 +6,8 @@ import authRouter from './routes/auth.routes';
 import projectRouter from './routes/project.routes';
 import { setupWebSocketServer, connectRedisSubscriber } from './websocket';
 import alertRouter from './routes/alert.routes';
-
+import statsRouter from './routes/stats.routes';
+import { createObservatoryAgent } from 'observatory-agent';
 
 dotenv.config();
 
@@ -19,6 +20,7 @@ app.use('/api/auth', authRouter);
 app.use('/api/projects', projectRouter);
 app.use('/api/metrics', metricsRouter);
 app.use('/api/projects/:projectId/alerts', alertRouter);
+app.use('/api/projects/:projectId/stats', statsRouter);
 
 
 app.get('/', (req: Request, res: Response) => {

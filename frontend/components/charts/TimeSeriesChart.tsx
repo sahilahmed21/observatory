@@ -1,40 +1,63 @@
 // app/components/charts/TimeSeriesChart.tsx
 'use client';
 
-import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts';
+import {
+    ChartConfig,
+    ChartContainer,
+    ChartTooltip,
+    ChartTooltipContent,
+} from '@/components/ui/chart';
 
 interface ChartData {
     name: string;
     responseTime: number;
 }
 
+// 1. Define the chart's configuration
+const chartConfig = {
+    responseTime: {
+        label: 'Response Time (ms)',
+        color: 'hsl(var(--primary))',
+    },
+} satisfies ChartConfig;
+
 export const TimeSeriesChart = ({ data }: { data: ChartData[] }) => {
     return (
-        <ResponsiveContainer width="100%" height={350}>
-            <LineChart data={data}>
-                <CartesianGrid vertical={false} stroke="hsl(var(--muted-foreground))" strokeDasharray="3 3" />
+        // 2. Use the new ChartContainer to wrap the chart
+        <ChartContainer config={chartConfig} className="h-[350px] w-full">
+            <AreaChart data={data}>
+                <defs>
+                    <linearGradient id="fillResponseTime" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="var(--color-responseTime)" stopOpacity={0.8} />
+                        <stop offset="95%" stopColor="var(--color-responseTime)" stopOpacity={0.1} />
+                    </linearGradient>
+                </defs>
+                <CartesianGrid vertical={false} />
                 <XAxis
                     dataKey="name"
-                    stroke="hsl(var(--muted-foreground))"
-                    fontSize={12}
                     tickLine={false}
                     axisLine={false}
+                    tickMargin={8}
+                    fontSize={12}
                 />
                 <YAxis
-                    stroke="hsl(var(--muted-foreground))"
-                    fontSize={12}
                     tickLine={false}
                     axisLine={false}
+                    tickMargin={8}
+                    fontSize={12}
                     tickFormatter={(value) => `${value}ms`}
                 />
-                <Tooltip
-                    contentStyle={{
-                        backgroundColor: 'hsl(var(--background))',
-                        borderColor: 'hsl(var(--border))',
-                    }}
+                {/* 3. Use the new, pre-styled Tooltip */}
+                <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" />} />
+                <Area
+                    dataKey="responseTime"
+                    type="natural"
+                    fill="url(#fillResponseTime)"
+                    stroke="var(--color-responseTime)"
+                    stackId="a"
                 />
-                <Line dataKey="responseTime" type="monotone" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} />
-            </LineChart>
-        </ResponsiveContainer>
+            </AreaChart>
+        </ChartContainer>
     );
 };
