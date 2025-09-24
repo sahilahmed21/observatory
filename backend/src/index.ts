@@ -13,7 +13,15 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-app.use(cors());
+const corsOptions = {
+    origin: [
+        'http://localhost:3000', // For local development
+        process.env.FRONTEND_URL || '' // For our future Vercel deployment
+    ],
+    optionsSuccessStatus: 200
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
 app.use('/api/auth', authRouter);

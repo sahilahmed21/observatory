@@ -4,10 +4,11 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc",
+    "build": "prisma migrate deploy && tsc",
+    "postinstall": "prisma generate",
     "dev": "nodemon --exec ts-node src/index.ts",
     "start": "node dist/index.js",
-    "worker": "ts-node src/worker.ts"
+    "worker": "node dist/worker.js"
   },
   "keywords": [],
   "author": "",
