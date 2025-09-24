@@ -1,6 +1,9 @@
 import { PrismaClient } from '@prisma/client';
-import { metricsQueue } from '../queue';
+import Redis from 'ioredis';
+
 const prisma = new PrismaClient();
+// Create a separate client for publishing
+const publisher = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
 
 interface MetricData {
     endpoint: string;
@@ -14,22 +17,20 @@ export const ingestMetrics = async (projectId: string, metrics: MetricData[]) =>
         projectId: projectId,
     }));
 
-    const result = await prisma.metric.createMany({
-        data: metricsToCreate,
-    });
+    const result = await prisma.metric.createMany({ data: metricsToCreate });
+
+    // After saving, publish each new metric to Redis
     if (result.count > 0) {
-        // Find the metrics we just created to get their full data
         const createdMetrics = await prisma.metric.findMany({
             where: { projectId },
             orderBy: { timestamp: 'desc' },
             take: result.count
         });
-
-        // 2. Add each new metric to the queue for processing
-        for (const metric of createdMetrics) {
-            await metricsQueue.add('process-metric', metric);
-        }
-
-        return result;
+        createdMetrics.forEach(metric => {
+            // With ioredis, publish is straightforward
+            publisher.publish('metrics-channel', JSON.stringify(metric));
+        });
     }
-}
+
+    return result;
+};

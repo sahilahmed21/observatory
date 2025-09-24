@@ -1,23 +1,24 @@
-
 import express from 'express';
 import { Worker } from 'bullmq';
 import { PrismaClient, Metric } from '@prisma/client';
-import { createClient } from 'redis';
+import Redis from 'ioredis'; // Use ioredis
 import { sendEmailAlert } from './services/notification.service';
 
-// --- 1. SETUP THE WEB SERVER ---
 const app = express();
-const PORT = process.env.PORT || 10000; // Render provides a PORT env var
+const PORT = process.env.PORT || 10000;
 
 app.get('/health', (req, res) => {
-    // This is the endpoint our uptime monitor will ping.
     res.status(200).send('Worker is healthy and running.');
 });
 
-// --- 2. THE ORIGINAL WORKER LOGIC ---
 const startWorker = () => {
     const prisma = new PrismaClient();
-    const redisConnection = createClient({ url: process.env.REDIS_URL || 'redis://localhost:6379' });
+    // BullMQ is designed to work with ioredis.
+    // We create an ioredis instance and pass it directly.
+    const redisConnection = new Redis(process.env.REDIS_URL || 'redis://localhost:6379', {
+        // This option is recommended by Render for BullMQ
+        maxRetriesPerRequest: null
+    });
 
     console.log('Alert worker logic starting...');
 
@@ -49,12 +50,7 @@ const startWorker = () => {
                 await sendEmailAlert(rule, metric.responseTime, userEmail);
             }
         }
-    }, {
-        connection: {
-            host: process.env.REDIS_HOST || '127.0.0.1',
-            port: parseInt(process.env.REDIS_PORT || '6379')
-        }
-    });
+    }, { connection: redisConnection }); // This now works correctly
 
     worker.on('completed', job => {
         console.log(`[Worker] Job ${job.id} has completed!`);
@@ -65,9 +61,7 @@ const startWorker = () => {
     });
 }
 
-// --- 3. START EVERYTHING ---
 app.listen(PORT, () => {
     console.log(`Worker's health check server running on port ${PORT}`);
-    // Start the actual worker logic after the server is up.
     startWorker();
 });
