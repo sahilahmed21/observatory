@@ -15,21 +15,25 @@ import { Timer, CheckCircle } from 'lucide-react';
 import { useMemo } from 'react';
 
 const DashboardSkeleton = () => (
-    <div className="space-y-6">
-        <div className="grid gap-4 md:grid-cols-4">
+    <div className="space-y-5">
+        {/* Stat Cards Skeleton */}
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <Skeleton className="h-28" />
             <Skeleton className="h-28" />
             <Skeleton className="h-28" />
             <Skeleton className="h-28" />
         </div>
-        <div className="grid gap-4 lg:grid-cols-4">
-            <div className="lg:col-span-3 space-y-6">
-                <Skeleton className="h-80" />
-                <Skeleton className="h-96" />
+        {/* Main Dashboard Grid Skeleton */}
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-4">
+            {/* Left Column Skeleton */}
+            <div className="lg:col-span-3 space-y-5">
+                <Skeleton className="h-[360px]" />
+                <Skeleton className="h-[200px]" />
             </div>
-            <div className="space-y-6">
-                <Skeleton className="h-80" />
-                <Skeleton className="h-80" />
+            {/* Right Column Skeleton */}
+            <div className="space-y-4 lg:col-span-1">
+                <Skeleton className="h-[300px]" />
+                <Skeleton className="h-[300px]" />
             </div>
         </div>
     </div>

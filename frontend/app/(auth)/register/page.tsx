@@ -1,10 +1,11 @@
-'use client'; // This must be a client component to handle user interaction
-
+// app/(auth)/register/page.tsx
+'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import Image from 'next/image';
 import api from '@/app/lib/api';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
@@ -16,25 +17,36 @@ export default function RegisterPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setError(null); // Reset error before new submission
+        setError(null);
 
         try {
             await api.post('/auth/register', { email, password });
-            // If registration is successful, redirect to the login page
             router.push('/login');
         } catch (err: any) {
-            // If the API returns an error, display it
             setError(err.response?.data?.message || 'Registration failed. Please try again.');
         }
     };
 
     return (
-        <div className="flex items-center justify-center min-h-screen">
-            <Card className="w-full max-w-sm">
-                <CardHeader>
-                    <CardTitle className="text-2xl">Register</CardTitle>
-                </CardHeader>
-                <CardContent>
+        <div className="w-full lg:grid lg:min-h-screen lg:grid-cols-2 -mt-28">
+            <div className="flex items-center justify-center py-12">
+                <div className="mx-auto grid w-full max-w-[600px] gap-6">
+                    {/* Logo */}
+                    <div className="flex justify-center mb-6">
+                        <Image
+                            src="/image2.png"
+                            alt="Logo"
+                            width={900}
+                            height={20}
+                            className="object-contain"
+                        />
+                    </div>
+                    <div className="grid gap-2 text-center">
+                        <h1 className="text-3xl font-bold">Register</h1>
+                        <p className="text-balance text-muted-foreground">
+                            Create a new account
+                        </p>
+                    </div>
                     <form onSubmit={handleSubmit} className="grid gap-4">
                         <div className="grid gap-2">
                             <Label htmlFor="email">Email</Label>
@@ -62,8 +74,24 @@ export default function RegisterPage() {
                             Create an account
                         </Button>
                     </form>
-                </CardContent>
-            </Card>
+                    <div className="mt-4 text-center text-sm">
+                        Already have an account?{" "}
+                        <Link href="/login" className="underline">
+                            Log in
+                        </Link>
+                    </div>
+                </div>
+            </div>
+            <div className="hidden bg-muted lg:block relative">
+                {/* Background Image */}
+                <Image
+                    src="/image.png"
+                    alt="Background"
+                    fill
+                    className="object-cover"
+                    priority
+                />
+            </div>
         </div>
     );
 }
