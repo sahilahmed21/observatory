@@ -7,7 +7,7 @@ import projectRouter from './routes/project.routes';
 import { setupWebSocketServer, connectRedisSubscriber } from './websocket';
 import alertRouter from './routes/alert.routes';
 import statsRouter from './routes/stats.routes';
-import { createObservatoryAgent } from 'observatory-agent';
+// import { createObservatoryAgent } from 'observatory-agent';
 
 dotenv.config();
 
