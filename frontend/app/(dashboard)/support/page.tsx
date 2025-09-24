@@ -1,4 +1,5 @@
 // app/(dashboard)/support/page.tsx
+'use client'
 import withAuth from "@/components/auth/withAuth";
 
 const SupportPage = () => {
