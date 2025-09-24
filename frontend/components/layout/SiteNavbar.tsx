@@ -8,7 +8,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useAuthStore } from "@/app/store/auth.store";
 import {
     Navbar, NavBody, MobileNav, NavbarButton,
-    MobileNavHeader, MobileNavToggle, MobileNavMenu,
+    MobileNavHeader, MobileNavToggle,
 } from "@/components/ui/resizable-navbar";
 import {
     DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
