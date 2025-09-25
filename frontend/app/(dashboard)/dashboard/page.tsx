@@ -1,5 +1,7 @@
+
 'use client';
 
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import api from '@/app/lib/api';
 import withAuth from '@/components/auth/withAuth';
@@ -7,12 +9,15 @@ import { CreateProjectDialog } from '@/components/dashboard/CreateProjectDialog'
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
 import { BackgroundGradient } from '@/components/ui/background-gradient';
-import { CheckCircle, Timer, BarChart } from 'lucide-react';
+import { CheckCircle, Timer, BarChart, Copy, Check } from 'lucide-react';
+import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
 
-// Updated Project type to include summary stats from the backend
+// Updated Project type to include the apiKeys array
 interface Project {
     id: string;
     name: string;
+    apiKeys: { key: string }[];
     avgLatency: number;
     successRate: number;
     totalRequests: number;
@@ -25,19 +30,46 @@ const DashboardPage = () => {
     });
 
     // A dedicated component for our new, data-rich project card
-    const ProjectCard = ({ project }: { project: Project }) => (
-        <Link href={`/projects/${project.id}`}>
+    const ProjectCard = ({ project }: { project: Project }) => {
+        const [copied, setCopied] = useState(false);
+        const apiKey = project.apiKeys?.[0]?.key;
+
+        const handleCopy = () => {
+            if (apiKey) {
+                navigator.clipboard.writeText(apiKey);
+                setCopied(true);
+                toast.success("API Key copied to clipboard!");
+                setTimeout(() => setCopied(false), 2000); // Reset after 2 seconds
+            }
+        }
+
+        return (
             <BackgroundGradient
                 className="rounded-[22px] p-4 sm:p-6 bg-zinc-900 h-full"
                 containerClassName="h-full"
             >
                 <div className="flex flex-col h-full">
-                    <p className="text-lg sm:text-xl font-medium text-white">
-                        {project.name}
-                    </p>
-                    <p className="text-sm text-neutral-400 mt-1">
-                        Click to view performance dashboard
-                    </p>
+                    <Link href={`/projects/${project.id}`} className="group">
+                        <p className="text-lg sm:text-xl font-medium text-white group-hover:underline">
+                            {project.name}
+                        </p>
+                        <p className="text-sm text-neutral-400 mt-1">
+                            Click to view performance dashboard
+                        </p>
+                    </Link>
+
+                    {/* API Key Section - THIS IS THE FIX */}
+                    <div className="my-4">
+                        <p className="text-xs text-neutral-400 mb-1">API Key</p>
+                        <div className="flex items-center gap-2">
+                            <code className="text-xs bg-muted p-2 rounded-md font-mono break-all block w-full">
+                                {apiKey || 'No key found'}
+                            </code>
+                            <Button variant="ghost" size="icon" onClick={handleCopy} disabled={!apiKey}>
+                                {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
+                            </Button>
+                        </div>
+                    </div>
 
                     {/* Live Stats Section */}
                     <div className="mt-auto pt-4 flex justify-between items-end">
@@ -58,8 +90,8 @@ const DashboardPage = () => {
                     </div>
                 </div>
             </BackgroundGradient>
-        </Link>
-    );
+        );
+    }
 
     return (
         <div className="space-y-6">
@@ -70,9 +102,9 @@ const DashboardPage = () => {
 
             {isLoading && (
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    <Skeleton className="h-[12rem] rounded-[22px]" />
-                    <Skeleton className="h-[12rem] rounded-[22px]" />
-                    <Skeleton className="h-[12rem] rounded-[22px]" />
+                    <Skeleton className="h-[14rem] rounded-[22px]" />
+                    <Skeleton className="h-[14rem] rounded-[22px]" />
+                    <Skeleton className="h-[14rem] rounded-[22px]" />
                 </div>
             )}
 
