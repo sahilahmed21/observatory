@@ -9,6 +9,7 @@ import { PlayCircle } from "lucide-react";
 import { Cover } from "@/components/ui/cover";
 import { HoverEffect } from "@/components/ui/card-hover-effect";
 import { PointerHighlight } from "@/components/ui/pointer-highlight";
+import ReactPlayer from "react-player";
 
 export default function HomePage() {
   const navItems = [
@@ -131,14 +132,16 @@ export default function HomePage() {
         {/* Demo Video Section */}
         <section id="demo" className="container py-16 md:py-24">
           <div className="mx-auto max-w-4xl">
-            <div className="aspect-video w-full bg-black/40 backdrop-blur-sm border border-white/20 rounded-lg flex items-center justify-center cursor-pointer hover:bg-black/50 transition-colors">
-              <div className="text-center">
-                <PlayCircle className="h-16 w-16 mx-auto text-white mb-4" />
-                <p className="font-semibold text-white text-lg">
-                  Watch the Demo
-                </p>
-                <p className="text-sm text-white/70">(Coming Soon)</p>
-              </div>
+            <div className="aspect-video w-full rounded-lg overflow-hidden shadow-lg">
+              <video
+                src="/axondemo.mp4"
+                width="100%"
+                height="100%"
+                controls
+                loop
+                style={{ objectFit: "cover", width: "100%", height: "100%" }}
+              />
+              loop
             </div>
           </div>
         </section>
